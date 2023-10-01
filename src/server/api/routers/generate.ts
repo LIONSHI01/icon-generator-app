@@ -18,6 +18,7 @@ const s3 = new AWS.S3({
     secretAccessKey: env.SECRET_ACCESS_KEY,
   },
 });
+
 async function generateIcon(prompt: string): Promise<string | undefined> {
   if (env.MOCK_DALLE === "true") {
     return b64Image;
