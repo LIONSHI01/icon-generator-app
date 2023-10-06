@@ -71,12 +71,20 @@ export const generateRouter = createTRPCRouter({
       // make a fetch request to DALL-E
       const base64EncodedImage = await generateIcon(input.prompt);
 
+      // create Icon record in db
+      const icon = await ctx.prisma.icon.create({
+        data: {
+          prompt: input.prompt,
+          userId: ctx.session.user.id,
+        },
+      });
+
       // TODO: save the images to s3 bucket
       await s3
         .putObject({
           Bucket: env.BUCKET_NAME,
           Body: Buffer.from(base64EncodedImage!, "base64"),
-          Key: "my-imageedd", //TODO: generate a random id
+          Key: icon.id, //TODO: generate a random id
           ContentEncoding: "base64",
           ContentType: "image/jpeg",
         })
