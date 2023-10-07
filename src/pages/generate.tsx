@@ -9,8 +9,11 @@ import FormGroup from "~/component/FormGroup";
 import Input from "~/component/Input";
 import { api } from "~/utils/api";
 import { env } from "~/env.mjs";
+import { useBuyCredits } from "~/hooks/useBuyCredit";
 
 const GeneratePage: NextPage = () => {
+  const { buyCredits } = useBuyCredits();
+
   const [form, setForm] = useState({
     prompt: "",
   });
@@ -64,13 +67,22 @@ const GeneratePage: NextPage = () => {
           </Button>
         )}
         {isLoggedIn && (
-          <Button
-            onClick={() => {
-              signOut().catch(console.error);
-            }}
-          >
-            Logout
-          </Button>
+          <>
+            <Button
+              onClick={() => {
+                buyCredits().catch(console.error);
+              }}
+            >
+              Buy Credits
+            </Button>
+            <Button
+              onClick={() => {
+                signOut().catch(console.error);
+              }}
+            >
+              Logout
+            </Button>
+          </>
         )}
         {session.data?.user.name}
         <form onSubmit={handleFormSubmit}>
