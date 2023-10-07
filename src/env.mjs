@@ -26,6 +26,12 @@ const server = z.object({
   SECRET_ACCESS_KEY: z.string(),
   ACCESS_KEY_ID: z.string(),
   BUCKET_NAME: z.string(),
+  HOST_NAME: z.string(),
+
+  // STRIPE
+  STRIPE_SECRET_KEY: z.string(),
+  PRICE_ID: z.string(),
+  STRIPE_WEB_HOOK_SECRET: z.string(),
 });
 
 /**
@@ -33,6 +39,7 @@ const server = z.object({
  * built with invalid env vars. To expose them to the client, prefix them with `NEXT_PUBLIC_`.
  */
 const client = z.object({
+  NEXT_PUBLIC_STRIPE_KEY: z.string(),
   // NEXT_PUBLIC_CLIENTVAR: z.string().min(1),
 });
 
@@ -54,7 +61,11 @@ const processEnv = {
   SECRET_ACCESS_KEY: process.env.SECRET_ACCESS_KEY,
   ACCESS_KEY_ID: process.env.ACCESS_KEY_ID,
   BUCKET_NAME: process.env.BUCKET_NAME,
-  // NEXT_PUBLIC_CLIENTVAR: process.env.NEXT_PUBLIC_CLIENTVAR,
+  NEXT_PUBLIC_STRIPE_KEY: process.env.NEXT_PUBLIC_STRIPE_KEY,
+  STRIPE_SECRET_KEY: process.env.STRIPE_SECRET_KEY,
+  HOST_NAME: process.env.HOST_NAME,
+  PRICE_ID: process.env.PRICE_ID,
+  STRIPE_WEB_HOOK_SECRET: process.env.STRIPE_WEB_HOOK_SECRET,
 };
 
 // Don't touch the part below
