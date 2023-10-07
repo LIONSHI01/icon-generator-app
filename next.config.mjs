@@ -21,7 +21,7 @@ const config = {
     defaultLocale: "en",
   },
   images: {
-    domains: ["picsum.photos"],
+    domains: ["picsum.photos", "icon-generator-lion.s3.amazonaws.com"],
   },
 };
 export default config;

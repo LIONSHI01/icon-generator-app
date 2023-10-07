@@ -84,14 +84,14 @@ export const generateRouter = createTRPCRouter({
         .putObject({
           Bucket: env.BUCKET_NAME,
           Body: Buffer.from(base64EncodedImage!, "base64"),
-          Key: icon.id, //TODO: generate a random id
+          Key: icon.id,
           ContentEncoding: "base64",
-          ContentType: "image/jpeg",
+          ContentType: "image/gif",
         })
         .promise();
 
       return {
-        imageUrl: base64EncodedImage,
+        imageUrl: `https://${env.BUCKET_NAME}.s3.amazonaws.com/${icon.id}`,
       };
     }),
 });
