@@ -42,10 +42,10 @@ export const generateRouter = createTRPCRouter({
     .input(
       z.object({
         prompt: z.string(),
+        color: z.string(),
       })
     )
     .mutation(async ({ ctx, input }) => {
-      console.log("we are here", input.prompt);
       // TODO: verify the user has enough credit
       const { count } = await ctx.prisma.user.updateMany({
         where: {
@@ -68,13 +68,16 @@ export const generateRouter = createTRPCRouter({
         });
       }
 
+      const finalPrompt = `a modern icon in ${input.color} of a ${input.prompt}`;
+
       // make a fetch request to DALL-E
-      const base64EncodedImage = await generateIcon(input.prompt);
+      const base64EncodedImage = await generateIcon(finalPrompt);
 
       // create Icon record in db
       const icon = await ctx.prisma.icon.create({
         data: {
           prompt: input.prompt,
+          // color: input.color,
           userId: ctx.session.user.id,
         },
       });
