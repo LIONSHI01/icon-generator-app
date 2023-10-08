@@ -1,6 +1,6 @@
 import React from "react";
 
-const Input = (props: React.ComponentPropsWithoutRef<"input">) => {
+export const Input = (props: React.ComponentPropsWithoutRef<"input">) => {
   return (
     <input
       type="text"
@@ -9,5 +9,3 @@ const Input = (props: React.ComponentPropsWithoutRef<"input">) => {
     />
   );
 };
-
-export default Input;
