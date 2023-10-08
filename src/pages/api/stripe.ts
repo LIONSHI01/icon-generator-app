@@ -1,32 +1,71 @@
-const stripe = require("stripe")("sk_test_...");
-const express = require("express");
-const app = express();
+import { type NextApiRequest, type NextApiResponse } from "next";
+import { buffer } from "micro";
+import Stripe from "stripe";
 
-// This is your Stripe CLI webhook secret for testing your endpoint locally.
-const endpointSecret =
-  "whsec_3f507e58fa735b8821ac8dfbdbb38abe48ed07707dfe0e7d74643365052b92f0";
+import { env } from "~/env.mjs";
+import { prisma } from "~/server/db";
 
-app.post(
-  "/webhook",
-  express.raw({ type: "application/json" }),
-  (request, response) => {
-    const sig = request.headers["stripe-signature"];
+const stripe = new Stripe(env.STRIPE_SECRET_KEY, {
+  apiVersion: "2023-08-16",
+});
+
+// NOTE: !important Set up Next API Config
+export const config = {
+  api: {
+    bodyParser: false,
+  },
+};
+
+const webhook = async (req: NextApiRequest, res: NextApiResponse) => {
+  if (req.method === "POST") {
+    const buf = await buffer(req);
+    const sig = req.headers["stripe-signature"] as string;
 
     let event;
 
     try {
-      event = stripe.webhooks.constructEvent(request.body, sig, endpointSecret);
+      event = stripe.webhooks.constructEvent(
+        buf,
+        sig,
+        env.STRIPE_WEB_HOOK_SECRET
+      );
     } catch (err) {
-      response.status(400).send(`Webhook Error: ${err.message}`);
+      let message = "Unknown Error";
+      if (err instanceof Error) message = err.message;
+      res.status(400).send(`Webhook Error: ${message}`);
       return;
     }
 
-    // Handle the event
-    console.log(`Unhandled event type ${event.type}`);
+    switch (event.type) {
+      case "checkout.session.completed":
+        const completedEvent = event.data.object as {
+          id: string;
+          metadata: {
+            userId: string;
+          };
+        };
 
-    // Return a 200 response to acknowledge receipt of the event
-    response.send();
+        await prisma.user.update({
+          where: {
+            id: completedEvent.metadata.userId,
+          },
+          data: {
+            credits: {
+              increment: 100,
+            },
+          },
+        });
+
+        break;
+      default:
+        console.log(`Unhandled event type ${event.type}`);
+    }
+
+    res.json({ received: true });
+  } else {
+    res.setHeader("Allow", "POST");
+    res.status(405).end("Method Not Allowed");
   }
-);
+};
 
-app.listen(4242, () => console.log("Running on port 4242"));
+export default webhook;
